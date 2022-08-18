@@ -5,8 +5,9 @@ from typing_extensions import Self
 
 
 class _Commentable:
-    def __floordiv__(self, other: Any) -> NoReturn:
-        print(end='')
+    def __floordiv__(self, other: Any):
+        print(end="")
+        return other
 
 
 @iife
@@ -80,21 +81,22 @@ class std_vector(list[T], _Commentable):
 
         self.size: Callable[[], int] = lambda: len(self)
         self.empty: Callable[[], bool] = lambda: len(self) == 0
-        self.clear: Callable[[], None] = lambda: self.__init__()
         self.resize: Callable[[int, T], None] = lambda n, v: self.__init__(n, v)
 
         if isinstance(initializer_list_or_size, int):
             assert value is not None, "Must provide value for vector of size {}".format(
                 initializer_list_or_size
             )
-            self._datatype: Type[T] = type(value)
+            self._datatype: Optional[Type[T]] = type(value)
             super().__init__([value] * initializer_list_or_size)
-        else:
-            assert (
-                initializer_list_or_size is not None
-            ), "Must provide initializer list or size for vector"
-            self._datatype: Type[T] = type(next(iter(initializer_list_or_size)))
+        elif initializer_list_or_size is not None:
+            self._datatype: Optional[Type[T]] = type(
+                next(iter(initializer_list_or_size))
+            )
             super().__init__(initializer_list_or_size)
+        else:
+            self._datatype = None
+            super().__init__()
 
     def __lt__(self, template_param: Type[T]) -> Self:
         if not self._datatype:
@@ -108,8 +110,19 @@ class std_vector(list[T], _Commentable):
                 )
         return self
 
+    def clear(self):
+        dtype = self._datatype
+        self.__init__()
+        self._datatype = dtype
+
     def push_back(self, value) -> Self:
-        self.append(value)
+        assert self._datatype is not None, "Cannot push_back on vector of unknown type"
+        try:
+            self.append(self._datatype(value))
+        except Exception as e:
+            raise TypeError(
+                f"Cannot push value type {type(value)} to vector of type {self._datatype}"
+            )
         return self
 
     def back(self) -> T:

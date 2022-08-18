@@ -31,10 +31,13 @@ def test_vector() -> None:
     assert y == [1, 2, 3]
     y.push_back(4)
     assert y == [1, 2, 3, 4]
-    z = cpp[std::vector<float>v(3, 0.0)]
+    z = cpp[std :: vector < float > v(3, 0.0)]
     assert z == [0.0, 0.0, 0.0]
-    w = cpp[std::vector<float>v({1, 2, 3})]
+    w = cpp[std :: vector < float > v({1, 2, 3})]
     assert w == [1.0, 2.0, 3.0]
+    w.clear()
+    assert w == []
+    assert w._datatype == float
 
 
 def test_vector_conversions() -> None:

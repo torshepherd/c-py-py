@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "c-py-py"
-version = "0.1.0"
+version = "0.1.5"
 description = ""
 authors = ["torshepherd <tor.aksel.shepherd@gmail.com>"]
 license = "MIT"
